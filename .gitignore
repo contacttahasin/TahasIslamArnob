@@ -1,0 +1,42 @@
+# dependencies
+node_modules
+/.pnp
+.pnp.*
+
+# next.js
+/.next/
+/out/
+next-env.d.ts
+
+# production
+/build
+
+# typescript
+*.tsbuildinfo
+
+# env — never commit these. `.env.local` holds SUPABASE_SERVICE_ROLE_KEY
+# (bypasses row-level security) and GROQ_API_KEY.
+.env
+.env.*
+!.env.example
+
+# testing
+/coverage
+
+# debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# misc
+.DS_Store
+*.pem
+
+# editor / os
+.idea
+.vscode
+Thumbs.db
+
+# vercel
+.vercel

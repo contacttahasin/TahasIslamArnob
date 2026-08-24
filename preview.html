@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Drone Camera Scroll — Preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=JetBrains+Mono:wght@400;500&family=Playfair+Display:ital@1&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  /* ── Tuning constants live in the script below; these are just looks ── */
+  :root {
+    --bg: #0a0705;
+    --accent: #e2542d;
+    --ink: #f2efec;
+    --display: "Anton", Impact, "Arial Narrow Bold", sans-serif;
+    --ui: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    --script: "Playfair Display", Georgia, "Times New Roman", serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--ink); font-family: var(--ui); }
+
+  /* The runway: real page height for the camera to travel through.
+     Height is set from JS as (N + 0.3) * 100vh. */
+  #runway { position: relative; }
+
+  /* CSS sticky, never a JS/GSAP pin — sticky cannot mis-measure. */
+  #stage {
+    position: sticky; top: 0; height: 100vh; overflow: hidden;
+    perspective: 1400px;            /* MUST match PERSP in the script */
+    background: var(--bg);
+  }
+  #world { position: absolute; inset: 0; transform-style: preserve-3d; will-change: transform; }
+  #stars { position: absolute; inset: 0; transform-style: preserve-3d; }
+
+  .scene {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    will-change: transform, opacity, filter;
+  }
+  .scene svg.wire {
+    position: absolute; width: min(46vw, 460px);
+    opacity: .16; stroke: var(--accent); stroke-width: .7; fill: none;
+  }
+  .scene .idx { font-family: var(--mono); font-size: .65rem; letter-spacing: .4em; color: var(--accent); margin-bottom: 1.2rem; }
+  .scene h2 {
+    font-family: var(--display); font-size: clamp(3rem, 11vw, 10rem);
+    line-height: .86; letter-spacing: -.02em; text-transform: uppercase; margin: 0;
+  }
+  .scene h2.b { color: var(--accent); margin-top: -0.30em; }
+  .scene .script {
+    font-family: var(--script); font-style: italic;
+    font-size: clamp(.9rem, 2vw, 1.35rem); color: rgba(242,239,236,.6);
+    margin: .35em 0; position: relative; z-index: 1;
+  }
+
+  #vignette {
+    position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(circle at 50% 50%, transparent 32%, rgba(10,7,5,.92) 100%);
+  }
+  #grain { position: absolute; inset: 0; width: 100%; height: 100%; opacity: .05; pointer-events: none; mix-blend-mode: overlay; }
+
+  /* HUD — absolute inside the stage, so it only shows while the section is up */
+  .hud { position: absolute; pointer-events: none; }
+  #label-wrap { top: 1.75rem; left: 1.75rem; display: flex; align-items: center; gap: .75rem; }
+  #label-rule { width: 2.2rem; height: 1px; background: var(--accent); }
+  #label { font-family: var(--mono); font-size: .6rem; letter-spacing: .32em; color: rgba(242,239,236,.7); }
+  #counter { bottom: 1.75rem; left: 1.75rem; font-family: var(--mono); font-size: .6rem; letter-spacing: .28em; color: rgba(242,239,236,.5); }
+  #depth { bottom: 1.75rem; left: 50%; transform: translateX(-50%); font-family: var(--mono); font-size: .6rem; letter-spacing: .28em; color: rgba(242,239,236,.4); }
+  #rail { right: 1.4rem; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: .5rem; }
+  #rail .tick { position: relative; width: 2px; height: 26px; background: rgba(242,239,236,.12); }
+  #rail .tick i { position: absolute; inset: 0; background: var(--accent); transform: scaleY(0); transform-origin: top; transition: transform .45s ease; }
+  #cue {
+    bottom: 4.5rem; left: 50%; transform: translateX(-50%);
+    width: 34px; height: 52px; border-radius: 999px; border: 1px solid rgba(242,239,236,.2);
+    display: flex; justify-content: center; padding-top: 9px; transition: opacity .4s ease;
+  }
+  #cue i { width: 4px; height: 4px; border-radius: 999px; background: var(--accent); animation: bob 1.6s ease-in-out infinite; }
+  #border-pill {
+    bottom: 1.6rem; right: 1.75rem; display: flex; align-items: center; gap: .55rem;
+    padding: .5rem .95rem; border-radius: 999px; border: 1px solid rgba(242,239,236,.12);
+    background: rgba(242,239,236,.04); backdrop-filter: blur(10px);
+    font-family: var(--ui); font-size: .6rem; letter-spacing: .24em; color: rgba(242,239,236,.7);
+  }
+  #border-pill i { width: 6px; height: 6px; border-radius: 999px; background: var(--accent); animation: pulse 1.8s ease-in-out infinite; }
+
+  @keyframes bob { 0%,100% { transform: translateY(0); opacity: 1; } 50% { transform: translateY(16px); opacity: .3; } }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .25; } }
+
+  @media (max-width: 640px) {
+    #rail, #depth, #border-pill { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #cue i, #border-pill i { animation: none; }
+  }
+</style>
+</head>
+<body>
+
+<div id="runway">
+  <div id="stage">
+    <div id="world">
+      <div id="stars"></div>
+    </div>
+
+    <div id="vignette"></div>
+    <svg id="grain"><filter id="g"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3"/></filter><rect width="100%" height="100%" filter="url(#g)"/></svg>
+
+    <div class="hud" id="label-wrap"><span id="label-rule"></span><span id="label"></span></div>
+    <div class="hud" id="counter"></div>
+    <div class="hud" id="depth">Z 0</div>
+    <div class="hud" id="rail"></div>
+    <div class="hud" id="cue"><i></i></div>
+    <div class="hud" id="border-pill"><i></i><span>CROSS THE BORDER</span></div>
+  </div>
+</div>
+
+<script>
+/* ──────────────────────────────────────────────────────────────────────
+   Tuning constants — every knob for the camera.
+   ────────────────────────────────────────────────────────────────────── */
+
+/** World-units of Z between consecutive scenes. Bigger = longer flight. */
+const GAP = 1600;
+
+/** MUST match the CSS `perspective` on #stage. Lower = wider, punchier lens.
+    Change this and re-check the `past` fade + CULL_Z below. */
+const PERSP = 1400;
+
+/** Extra push-in on the final scene so it keeps advancing at the end. */
+const END_HOLD = 0.25;
+
+/** Scroll-follower lerp. Lower = heavier, more drone-like camera lag. */
+const EASE = 0.075;
+
+/** Apparent scale is PERSP / (PERSP - z) — it runs to infinity as z nears
+    PERSP, so a plane must be culled (and already faded) before then. */
+const CULL_Z = PERSP - 80;
+
+const STAR_COUNT = 110;
+const STAR_DEPTH = 3200;   // stars wrap modulo this, so the field is endless
+
+const YAW_SWAY = 2.4, YAW_MOUSE = 2.2, PITCH_SWAY = 1.6, PITCH_MOUSE = 1.6;
+
+const SCENES = [
+  { label: "SCENE 01 — THE APPROACH", index: "00.1", a: "CREATIVE", b: "DEVELOPER",   script: "Building thoughtful things", x:    0, y:   0, ry:  0 },
+  { label: "SCENE 02 — THE DOLLY",    index: "00.5", a: "BUILDING", b: "SCALABLE",    script: "Systems that hold up",      x: -120, y:  40, ry:  7 },
+  { label: "SCENE 03 — THE FOCUS",    index: "01.2", a: "MOTION",   b: "INTERFACE",   script: "Pixels with intent",        x:  140, y: -50, ry: -8 },
+  { label: "SCENE 04 — THE REVEAL",   index: "02.0", a: "LET'S",    b: "COLLABORATE", script: "Say hello",                 x:  -40, y:  20, ry:  3 },
+];
+
+/** Derived — adding a SCENES entry re-derives runway, span and rail. */
+const SPAN = SCENES.length - 1 + END_HOLD;
+
+const clamp   = (v, min, max) => Math.min(Math.max(v, min), max);
+const clamp01 = v => clamp(v, 0, 1);
+
+const runway = document.getElementById("runway");
+const stage  = document.getElementById("stage");
+const world  = document.getElementById("world");
+const starLayer = document.getElementById("stars");
+const labelEl = document.getElementById("label");
+const counterEl = document.getElementById("counter");
+const depthEl = document.getElementById("depth");
+const railEl = document.getElementById("rail");
+const cueEl = document.getElementById("cue");
+
+runway.style.height = ((SCENES.length + 0.3) * 100) + "vh";
+
+const WIRE_DIAMOND = '<path d="M100 18 L168 78 L100 182 L32 78 Z"/><path d="M32 78 L168 78"/><path d="M100 18 L100 182"/><path d="M66 48 L134 48 L168 78 M66 48 L32 78"/>';
+const WIRE_BARREL  = '<ellipse cx="100" cy="52" rx="62" ry="20"/><ellipse cx="100" cy="148" rx="62" ry="20"/><path d="M38 52 L38 148 M162 52 L162 148 M100 32 L100 168"/><ellipse cx="100" cy="100" rx="62" ry="20"/>';
+
+const sceneEls = SCENES.map((s, i) => {
+  const el = document.createElement("div");
+  el.className = "scene";
+  el.innerHTML =
+    '<svg class="wire" viewBox="0 0 200 200" aria-hidden="true">' + (i % 2 === 0 ? WIRE_DIAMOND : WIRE_BARREL) + '</svg>' +
+    '<span class="idx">' + s.index + '</span>' +
+    '<h2>' + s.a + '</h2>' +
+    '<span class="script">' + s.script + '</span>' +
+    '<h2 class="b">' + s.b + '</h2>';
+  world.appendChild(el);
+  return el;
+});
+
+const ticks = SCENES.map(() => {
+  const t = document.createElement("span");
+  t.className = "tick";
+  t.innerHTML = "<i></i>";
+  railEl.appendChild(t);
+  return t.firstElementChild;
+});
+
+const stars = [];
+for (let i = 0; i < STAR_COUNT; i++) {
+  const el = document.createElement("div");
+  const accent = i % 9 === 0;
+  el.style.cssText =
+    "position:absolute;left:50%;top:50%;width:" + (accent ? 3 : 2) + "px;height:" + (accent ? 3 : 2) +
+    "px;border-radius:50%;background:" + (accent ? "#e2542d" : "#f2efec") + ";will-change:transform,opacity;";
+  starLayer.appendChild(el);
+  stars.push({ el, x: (Math.random() - .5) * 2600, y: (Math.random() - .5) * 1600, z: -Math.random() * STAR_DEPTH });
+}
+
+let smooth = window.scrollY;
+let runwayTop = 0, travel = 1;
+function measure() {
+  runwayTop = runway.getBoundingClientRect().top + window.scrollY;
+  travel = Math.max(runway.offsetHeight - window.innerHeight, 1);
+}
+measure();
+window.addEventListener("resize", measure);
+
+let mouseX = 0, mouseY = 0;
+window.addEventListener("mousemove", e => {
+  mouseX = (e.clientX / window.innerWidth) * 2 - 1;
+  mouseY = (e.clientY / window.innerHeight) * 2 - 1;
+}, { passive: true });
+
+let cueHidden = false, lastLabel = -1;
+
+function frame() {
+  // Never hijack scroll — just trail behind it. That lag is the weight.
+  smooth += (window.scrollY - smooth) * EASE;
+
+  const progress = clamp01((smooth - runwayTop) / travel);
+  const p = progress * SPAN;
+  const camZ = p * GAP;
+
+  const yaw = Math.sin(p * 0.9) * YAW_SWAY + mouseX * YAW_MOUSE;
+  const pitch = Math.cos(p * 0.7) * PITCH_SWAY - mouseY * PITCH_MOUSE;
+  world.style.transform = "rotateX(" + pitch + "deg) rotateY(" + yaw + "deg)";
+  stage.style.perspectiveOrigin = (50 + mouseX * 4) + "% " + (50 + mouseY * 4) + "%";
+
+  for (let i = 0; i < SCENES.length; i++) {
+    const el = sceneEls[i], s = SCENES[i];
+    const d = p - i;        // scene-units in front of (−) / behind (+) the camera
+    const z = d * GAP;      // 0 = exactly on the focal plane
+
+    if (z >= CULL_Z) { el.style.opacity = 0; el.style.visibility = "hidden"; continue; }
+    el.style.visibility = "visible";
+
+    // No manual scale — the perspective divide does it, so distant text is
+    // genuinely further away rather than a fake zoom.
+    el.style.transform = "translate3d(" + s.x + "px," + s.y + "px," + z + "px) rotateY(" + s.ry + "deg)";
+
+    const emerge = clamp01((d + 2.6) / 1.0);
+    const near   = clamp01((d + 1.2) / 1.2);
+    // Squared: linear falloff leaves distant text competing with the
+    // headline in focus and it reads as a double exposure, not depth.
+    const depthLit = 0.06 + 0.94 * near * near;
+    // Must hit 0 before CULL_Z or the plane pops out of existence.
+    const past = (i === SCENES.length - 1) ? 1 : 1 - clamp01((d - 0.22) / 0.42);
+    el.style.opacity = emerge * depthLit * past;
+
+    const blur = d < 0 ? clamp(-d - 0.12, 0, 2.0) * 11 : clamp(d - 0.15, 0, 0.7) * 26;
+    el.style.filter = blur > 0.01 ? "blur(" + blur + "px)" : "none";
+  }
+
+  for (const st of stars) {
+    let z = (st.z + camZ) % STAR_DEPTH;
+    if (z > 0) z -= STAR_DEPTH;   // keep every star in front of the lens
+    st.el.style.transform = "translate3d(" + st.x + "px," + st.y + "px," + z + "px)";
+    st.el.style.opacity = clamp01(1 + z / STAR_DEPTH) * 0.55;
+  }
+
+  const active = clamp(Math.round(p), 0, SCENES.length - 1);
+  if (active !== lastLabel) {
+    lastLabel = active;
+    labelEl.textContent = SCENES[active].label;
+    counterEl.textContent = SCENES[active].index + " / " + SCENES[active].label.split("— ")[1];
+    ticks.forEach((t, i) => { t.style.transform = "scaleY(" + (i <= active ? 1 : 0) + ")"; });
+  }
+  depthEl.textContent = "Z " + Math.round(camZ);
+
+  if (!cueHidden && progress > 0.01) { cueHidden = true; cueEl.style.opacity = 0; }
+
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

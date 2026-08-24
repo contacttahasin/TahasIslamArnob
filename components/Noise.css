@@ -1,0 +1,11 @@
+/* Fills the nearest positioned ancestor rather than the viewport, so the
+   grain can be scoped to a panel (e.g. the slide-in menu) instead of
+   always covering the whole screen. Mount it inside a full-screen parent
+   to get the original viewport-wide behaviour. */
+.noise-overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
