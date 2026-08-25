@@ -3,6 +3,7 @@ import LiveChat from "@/app/components/LiveChat/LiveChat";
 import ScrollTop from "@/app/components/scrollTop/ScrollTop";
 import { jakarta } from "@/app/components/shared/fonts";
 import ContactHero from "@/app/components/contact/ContactHero";
+import BookingSection from "@/app/components/booking/BookingSection";
 import ContactFormNoir from "@/app/components/contact/ContactFormNoir";
 import CodeSnippet from "@/app/components/code/CodeSnippet";
 import Footer from "@/app/components/homeComponents/footer/Footer";
@@ -56,7 +57,9 @@ export default function Page() {
         />
       </section>
 
-      <ContactFormNoir />
+      <BookingSection>
+        <ContactFormNoir />
+      </BookingSection>
 
       <LiveChat />
       <ScrollTop />
