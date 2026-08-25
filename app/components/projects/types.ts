@@ -1,9 +1,7 @@
 /**
- * Public-site view model for a project — shared by both the filterable grid
- * (ProjectGrid) and the 3D ring (ProjectsRing), replacing the two separate
- * static shapes that used to live in data/projects.ts and data/ringProjects.ts.
- * Sourced from Supabase now (app/(site)/lib/projects.ts), filtered to
- * status="published" before it ever reaches these components.
+ * Public-site view model for a project, rendered by ProjectGrid. Sourced
+ * from Supabase (app/(site)/lib/projects.ts), filtered to status="published"
+ * before it ever reaches these components.
  */
 export type PublicProject = {
   id: string;
@@ -16,5 +14,4 @@ export type PublicProject = {
   live: string | null;
   featured: boolean;
   year: number;
-  type: "latest" | "portfolio";
 };

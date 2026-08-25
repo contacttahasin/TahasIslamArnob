@@ -30,7 +30,16 @@ const HIGHLIGHTS = [
   "Co-founded a digital product studio and led delivery of 50+ products over 5 years.",
 ];
 
-export default function WorkTimeline() {
+type WorkTimelineProps = {
+  /**
+   * Fits the section into one viewport, for use as a panel in the pinned
+   * card stack (StickyCards) where the panel is exactly viewport-tall and
+   * clips anything past it. Tightens spacing and type; no copy is dropped.
+   */
+  compact?: boolean;
+};
+
+export default function WorkTimeline({ compact = false }: WorkTimelineProps) {
   const rootRef = useRef<HTMLElement>(null);
   const reducedMotion = useReducedMotion();
 
@@ -82,7 +91,11 @@ export default function WorkTimeline() {
   return (
     <section
       ref={rootRef}
-      className="relative w-full overflow-hidden bg-bg-primary px-[6%] py-20 text-ink sm:py-24 md:px-[8%] lg:px-10 lg:py-32"
+      className={`relative w-full overflow-hidden bg-bg-primary px-[6%] text-ink md:px-[8%] lg:px-10 ${
+        compact
+          ? "wt-compact flex h-full items-center pb-3 pt-[68px] sm:py-8 lg:py-10"
+          : "py-20 sm:py-24 lg:py-32"
+      }`}
     >
       <div className="mx-auto w-full max-w-7xl">
 
@@ -95,7 +108,13 @@ export default function WorkTimeline() {
         {/* Headline + intro on the left, sketch on the right; stacked on
             phone with the sketch between the intro and the highlights,
             exactly as the reference lays it out. */}
-        <div className="mt-10 grid grid-cols-1 gap-10 lg:mt-14 lg:grid-cols-[1.1fr_0.9fr] lg:items-start lg:gap-14">
+        <div
+          className={`grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] ${
+            compact
+              ? "mt-3 gap-3 lg:mt-7 lg:items-center lg:gap-10"
+              : "mt-10 gap-10 lg:mt-14 lg:items-start lg:gap-14"
+          }`}
+        >
 
           <div className="order-1">
             <h2 className="wt-headline font-[font1] font-bold tracking-tight text-ink">
@@ -106,7 +125,11 @@ export default function WorkTimeline() {
               ))}
             </h2>
 
-            <p className="wt-intro mt-8 max-w-2xl leading-relaxed text-ink-secondary lg:mt-10">
+            <p
+              className={`wt-intro max-w-2xl leading-relaxed text-ink-secondary ${
+                compact ? "mt-3 lg:mt-5" : "mt-8 lg:mt-10"
+              }`}
+            >
               {INTRO}
             </p>
           </div>
@@ -118,16 +141,20 @@ export default function WorkTimeline() {
               width={1080}
               height={1080}
               sizes="(min-width: 1024px) 44vw, 80vw"
-              className="wt-art h-auto w-[80%] max-w-[560px] object-contain sm:w-[62%] lg:w-full"
+              className={`wt-art h-auto object-contain ${
+                compact
+                  ? "w-[34%] max-w-[220px] sm:w-[34%] lg:w-full lg:max-w-[400px]"
+                  : "w-[80%] max-w-[560px] sm:w-[62%] lg:w-full"
+              }`}
             />
           </div>
         </div>
 
         {/* Highlights */}
-        <div className="mt-14 lg:mt-20">
+        <div className={compact ? "mt-4 lg:mt-8" : "mt-14 lg:mt-20"}>
           <div className="wt-rule h-px w-full bg-line" />
 
-          <ul className="mt-10 space-y-6 lg:space-y-5">
+          <ul className={compact ? "mt-3 space-y-2 lg:space-y-3" : "mt-10 space-y-6 lg:space-y-5"}>
             {HIGHLIGHTS.map((item) => (
               <li key={item} className="flex items-start gap-4 lg:gap-6">
                 <span
@@ -176,6 +203,21 @@ export default function WorkTimeline() {
         }
         .wt-arrow {
           font-size: clamp(0.8rem, 1.2vw, 0.95rem);
+        }
+
+        /* Panel mode: same copy, one viewport tall. */
+        .wt-compact .wt-headline {
+          font-size: clamp(1.35rem, 4.4vw, 3.1rem);
+        }
+        .wt-compact .wt-intro {
+          font-size: clamp(0.8rem, 1.15vw, 0.95rem);
+        }
+        .wt-compact .wt-item-text {
+          font-size: clamp(0.75rem, 1vw, 0.9rem);
+          line-height: 1.5;
+        }
+        .wt-compact .wt-eyebrow {
+          font-size: clamp(0.55rem, 0.95vw, 0.65rem);
         }
       `}</style>
     </section>

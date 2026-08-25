@@ -10,6 +10,8 @@ import PageBlurWrapper from '@/app/components/shared/PageBlurWrapper'
 import { LocaleProvider } from '@/app/lib/LocaleProvider'
 import ThemedRibbons from '@/app/components/shared/ThemedRibbons'
 import NavGlow from '@/app/components/naveber/NavGlow'
+import SmoothScroll from '@/app/components/shared/SmoothScroll'
+import { Toaster } from '@/components/ui/sonner'
 
 /**
  * Public-site chrome (nav, menu, liquid page transitions, locale/theme/sound
@@ -27,6 +29,10 @@ export default function SiteLayout({
     <LocaleProvider>
       <ThemeProvider>
         <UiSoundProvider>
+          <SmoothScroll />
+          {/* Public-side toasts (review submission) had nowhere to render
+              until this was mounted — only /admin had a Toaster. */}
+          <Toaster richColors position="top-center" theme="dark" />
           <ThemedRibbons />
           <GlobalClickSound />
           <TransitionProvider>

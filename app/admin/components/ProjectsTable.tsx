@@ -52,7 +52,7 @@ import {
   setProjectStatus,
   reorderProjects,
 } from "@/app/admin/lib/actions/projects";
-import type { ProjectType, ProjectWithTechnologies } from "@/lib/supabase/types";
+import type { ProjectWithTechnologies } from "@/lib/supabase/types";
 
 const PAGE_SIZE = 8;
 
@@ -141,13 +141,7 @@ function SortableRow({
   );
 }
 
-export function ProjectsTable({
-  type,
-  initialProjects,
-}: {
-  type: ProjectType;
-  initialProjects: ProjectWithTechnologies[];
-}) {
+export function ProjectsTable({ initialProjects }: { initialProjects: ProjectWithTechnologies[] }) {
   const [items, setItems] = useState(initialProjects);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | "published" | "draft">("all");
@@ -155,8 +149,7 @@ export function ProjectsTable({
   const [deleteTarget, setDeleteTarget] = useState<ProjectWithTechnologies | null>(null);
   const [pending, startTransition] = useTransition();
 
-  const basePath = type === "latest" ? "/admin/latest-projects" : "/admin/portfolio-projects";
-  const label = type === "latest" ? "Latest Project" : "Portfolio Project";
+  const basePath = "/admin/portfolio-projects";
 
   const isFiltering = search.trim() !== "" || statusFilter !== "all";
 
@@ -187,7 +180,7 @@ export function ProjectsTable({
     setItems(next);
 
     startTransition(async () => {
-      const result = await reorderProjects(type, next.map((p) => p.id));
+      const result = await reorderProjects(next.map((p) => p.id));
       if (!result.ok) toast.error(result.error);
     });
   }
@@ -195,7 +188,7 @@ export function ProjectsTable({
   function handleToggleFeatured(project: ProjectWithTechnologies) {
     setItems((prev) => prev.map((p) => (p.id === project.id ? { ...p, featured: !p.featured } : p)));
     startTransition(async () => {
-      const result = await toggleProjectFeatured(project.id, type, !project.featured);
+      const result = await toggleProjectFeatured(project.id, !project.featured);
       if (!result.ok) toast.error(result.error);
     });
   }
@@ -204,7 +197,7 @@ export function ProjectsTable({
     const next = project.status === "published" ? "draft" : "published";
     setItems((prev) => prev.map((p) => (p.id === project.id ? { ...p, status: next } : p)));
     startTransition(async () => {
-      const result = await setProjectStatus(project.id, type, next);
+      const result = await setProjectStatus(project.id, next);
       if (!result.ok) toast.error(result.error);
     });
   }
@@ -213,7 +206,7 @@ export function ProjectsTable({
     if (!deleteTarget) return;
     const target = deleteTarget;
     startTransition(async () => {
-      const result = await deleteProject(target.id, type);
+      const result = await deleteProject(target.id);
       if (!result.ok) {
         toast.error(result.error);
         return;
@@ -227,7 +220,7 @@ export function ProjectsTable({
   return (
     <div>
       <PageHeader
-        title={type === "latest" ? "Latest Projects" : "Portfolio Projects"}
+        title="Projects"
         description={`${items.length} project${items.length === 1 ? "" : "s"} total`}
         actions={
           <Button render={<Link href={`${basePath}/new`} />} nativeButton={false}>
@@ -270,7 +263,7 @@ export function ProjectsTable({
       {items.length === 0 ? (
         <EmptyState
           icon={Plus}
-          title={`No ${label.toLowerCase()}s yet`}
+          title="No projects yet"
           description="Add your first project to get started."
           action={
             <Button render={<Link href={`${basePath}/new`} />} nativeButton={false} size="sm">

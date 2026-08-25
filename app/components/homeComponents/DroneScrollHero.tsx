@@ -2,7 +2,6 @@
 
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
-import Lenis from "lenis";
 import { anton, jetbrainsMono, playfair, spaceGrotesk } from "../shared/fonts";
 
 /* ────────────────────────────────────────────────────────────────────────
@@ -138,13 +137,11 @@ export default function DroneScrollHero() {
 
     const ctx = gsap.context(() => {}, runway);
 
-    // Lenis smooths the native scroll; the EASE lerp below then trails
-    // behind that smoothed value. Never hijack scroll — the lag between
-    // the real position and the camera is what reads as physical weight.
-    const lenis = new Lenis();
-    const raf = (time: number) => lenis.raf(time * 1000);
-    gsap.ticker.add(raf);
-    gsap.ticker.lagSmoothing(0);
+    // Smooth scrolling is a single site-wide Lenis instance mounted in the
+    // site layout (shared/SmoothScroll) — this section used to own it, which
+    // limited it to the home page. The EASE lerp below still trails behind
+    // that smoothed value; the lag between the real position and the camera
+    // is what reads as physical weight.
 
     /* ── Starfield ──────────────────────────────────────────────────────
        Built imperatively rather than as React nodes: the positions are
@@ -287,9 +284,6 @@ export default function DroneScrollHero() {
 
     return () => {
       gsap.ticker.remove(render);
-      gsap.ticker.remove(raf);
-      gsap.ticker.lagSmoothing(500, 33);
-      lenis.destroy();
       window.removeEventListener("resize", measure);
       window.removeEventListener("mousemove", onMouseMove);
       stars.forEach((s) => s.el.remove());

@@ -6,7 +6,6 @@ import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard,
-  Rocket,
   Briefcase,
   Images,
   Tags,
@@ -16,6 +15,7 @@ import {
   Menu,
   X,
   ShieldCheck,
+  MessageSquareQuote,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -23,10 +23,10 @@ import { signOut } from "@/app/admin/lib/actions/account";
 
 const NAV_ITEMS = [
   { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/admin/latest-projects", label: "Latest Projects", icon: Rocket },
-  { href: "/admin/portfolio-projects", label: "Portfolio Projects", icon: Briefcase },
+  { href: "/admin/portfolio-projects", label: "Projects", icon: Briefcase },
   { href: "/admin/media", label: "Media Library", icon: Images },
   { href: "/admin/technologies", label: "Technologies", icon: Tags },
+  { href: "/admin/reviews", label: "Reviews", icon: MessageSquareQuote },
   { href: "/admin/settings", label: "Portfolio Settings", icon: Settings },
   { href: "/admin/account", label: "Account", icon: UserCog },
 ] as const;

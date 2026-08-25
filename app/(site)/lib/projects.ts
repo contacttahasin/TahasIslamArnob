@@ -1,7 +1,7 @@
 import "server-only";
 import { createClient } from "@/lib/supabase/server";
 import type { PublicProject } from "@/app/components/projects/types";
-import type { ProjectType, ProjectWithTechnologies } from "@/lib/supabase/types";
+import type { ProjectWithTechnologies } from "@/lib/supabase/types";
 
 const PROJECT_WITH_TECH_SELECT = "*, project_technologies(technologies(*))";
 
@@ -21,7 +21,6 @@ function toPublicProject(row: RawProjectRow): PublicProject {
     live: row.live_url,
     featured: row.featured,
     year: new Date(row.created_at).getFullYear(),
-    type: row.type,
   };
 }
 
@@ -30,17 +29,13 @@ function toPublicProject(row: RawProjectRow): PublicProject {
  * reorder wrote it. No auth required — reads are public per the RLS
  * policies in supabase/schema.sql, same client the admin side uses.
  */
-export async function getPublishedProjects(type?: ProjectType): Promise<PublicProject[]> {
+export async function getPublishedProjects(): Promise<PublicProject[]> {
   const supabase = await createClient();
-  let query = supabase
+  const { data, error } = await supabase
     .from("projects")
     .select(PROJECT_WITH_TECH_SELECT)
     .eq("status", "published")
     .order("display_order", { ascending: true });
-
-  if (type) query = query.eq("type", type);
-
-  const { data, error } = await query;
   if (error || !data) return [];
   return (data as unknown as RawProjectRow[]).map(toPublicProject);
 }

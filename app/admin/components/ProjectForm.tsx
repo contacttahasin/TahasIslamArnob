@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
 import { slugify } from "@/lib/slug";
 import { projectSchema, type ProjectInput } from "@/app/admin/lib/schemas/project";
 import { createProject, updateProject, checkSlugAvailable } from "@/app/admin/lib/actions/projects";
-import type { ProjectType, ProjectWithTechnologies, Technology } from "@/lib/supabase/types";
+import type { ProjectWithTechnologies, Technology } from "@/lib/supabase/types";
 
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from "@/components/ui/form";
@@ -23,11 +23,9 @@ import { ImageUploader } from "@/app/admin/components/ImageUploader";
 import { GalleryUploader } from "@/app/admin/components/GalleryUploader";
 
 export function ProjectForm({
-  type,
   technologies,
   project,
 }: {
-  type: ProjectType;
   technologies: Technology[];
   project?: ProjectWithTechnologies;
 }) {
@@ -35,12 +33,11 @@ export function ProjectForm({
   const [pending, startTransition] = useTransition();
   const [slugTouched, setSlugTouched] = useState(!!project);
   const [slugStatus, setSlugStatus] = useState<"idle" | "checking" | "available" | "taken">("idle");
-  const listHref = type === "latest" ? "/admin/latest-projects" : "/admin/portfolio-projects";
+  const listHref = "/admin/portfolio-projects";
 
   const form = useForm<ProjectInput>({
     resolver: zodResolver(projectSchema),
     defaultValues: {
-      type,
       title: project?.title ?? "",
       slug: project?.slug ?? "",
       description: project?.description ?? "",

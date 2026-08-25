@@ -6,7 +6,6 @@ const urlOrEmpty = z
   .refine((v) => v === "" || /^https?:\/\/.+/i.test(v), "Enter a valid URL (https://...)");
 
 export const projectSchema = z.object({
-  type: z.enum(["latest", "portfolio"]),
   title: z.string().trim().min(2, "Title is required"),
   slug: z
     .string()

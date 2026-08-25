@@ -141,7 +141,20 @@ export default function Team() {
       onMouseMove={handleMove}
       className="relative w-full overflow-hidden bg-[#0C0F14] px-6 py-24 sm:px-10 sm:py-32 lg:px-16"
     >
-      {/* Ambient glow */}
+      {/* Editor grid + ambient glow */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 opacity-[0.35]"
+        style={{
+          backgroundImage:
+            "linear-gradient(to right, rgba(255,255,255,0.045) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.045) 1px, transparent 1px)",
+          backgroundSize: "72px 72px",
+          maskImage:
+            "radial-gradient(ellipse 80% 60% at 50% 40%, #000 40%, transparent 100%)",
+          WebkitMaskImage:
+            "radial-gradient(ellipse 80% 60% at 50% 40%, #000 40%, transparent 100%)",
+        }}
+      />
       <div className="pointer-events-none absolute -top-32 left-1/2 h-[420px] w-[420px] -translate-x-1/2 rounded-full bg-noir-gold/10 blur-[150px]" />
 
       {/* Custom cursor follower */}
@@ -161,8 +174,10 @@ export default function Team() {
       <div className="relative mx-auto max-w-6xl">
         {/* Heading */}
         <div ref={headingRef} className="mb-14 text-center sm:mb-20">
-          <span className="mb-4 block text-xs font-medium uppercase tracking-[0.4em] text-noir-gold">
+          <span className="mb-5 inline-flex items-center gap-2 rounded-md border border-[#262C38] bg-[#12161E] px-3 py-1.5 font-mono text-[11px] uppercase tracking-[0.28em] text-noir-gold sm:text-xs">
+            <span className="text-white/30">const</span>
             {t("eyebrow")}
+            <span className="text-white/30">= []</span>
           </span>
 
           <div className="relative flex min-h-[3.5em] items-center justify-center overflow-hidden sm:min-h-[2.5em]">
@@ -173,8 +188,11 @@ export default function Team() {
                 animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
                 exit={{ opacity: 0, y: -24, filter: "blur(10px)" }}
                 transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-                className="text-4xl font-bold uppercase leading-tight tracking-tight text-white sm:text-6xl lg:text-7xl"
+                className="flex flex-wrap items-center justify-center gap-x-3 font-mono text-3xl font-bold uppercase leading-tight tracking-tight text-white sm:text-5xl lg:text-6xl"
               >
+                <span aria-hidden className="text-noir-gold/40">
+                  &lt;
+                </span>
                 {activeMember ? (
                   <span className="bg-linear-to-r from-noir-gold to-noir-gold-bright bg-clip-text text-transparent">
                     {activeMember.name}
@@ -182,6 +200,9 @@ export default function Team() {
                 ) : (
                   DEFAULT_NAME
                 )}
+                <span aria-hidden className="text-noir-gold/40">
+                  /&gt;
+                </span>
               </motion.h2>
             </AnimatePresence>
           </div>
@@ -193,9 +214,16 @@ export default function Team() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-              className="mt-3 text-sm tracking-wide text-white/70 sm:text-base"
+              className="mt-3 font-mono text-sm tracking-wide text-white/70 sm:text-base"
             >
+              <span aria-hidden className="mr-2 text-noir-gold">
+                $
+              </span>
               {activeMember?.role ?? DEFAULT_ROLE}
+              <span
+                aria-hidden
+                className="ml-2 inline-block h-[1em] w-[0.5em] translate-y-[0.12em] animate-pulse bg-noir-gold-bright/80"
+              />
             </motion.p>
           </AnimatePresence>
         </div>
@@ -291,7 +319,7 @@ function TeamCard({
           opacity: isDimmed ? 0.45 : 1,
         }}
         transition={{ type: "spring", stiffness: 300, damping: 24 }}
-        className="relative aspect-4/5 w-full overflow-hidden rounded-2xl border border-[#262C38] bg-[#171B24] shadow-[0_20px_45px_-25px_rgba(0,0,0,0.75)] transform-gpu will-change-transform"
+        className="relative aspect-4/5 w-full overflow-hidden rounded-xl border border-[#262C38] bg-[#171B24] shadow-[0_20px_45px_-25px_rgba(0,0,0,0.75)] transform-gpu will-change-transform"
       >
         <Image
           src={member.image}
@@ -301,23 +329,50 @@ function TeamCard({
           className="object-cover object-top transition-transform duration-500 ease-out group-hover:scale-110"
         />
 
-        <div className="absolute inset-0 bg-linear-to-t from-[#0C0F14] via-transparent to-transparent opacity-70" />
+        <div className="absolute inset-0 bg-linear-to-t from-[#0C0F14] via-[#0C0F14]/10 to-[#0C0F14]/60 opacity-90" />
 
-        <span className="absolute right-4 top-4 text-xs font-medium tracking-widest text-white/70">
-          {String(index + 1).padStart(2, "0")}
-        </span>
+        {/* Scanlines — faint CRT texture over the portrait */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 opacity-[0.12] mix-blend-overlay"
+          style={{
+            backgroundImage:
+              "repeating-linear-gradient(to bottom, rgba(255,255,255,0.6) 0px, rgba(255,255,255,0.6) 1px, transparent 1px, transparent 4px)",
+          }}
+        />
 
-        <div className="absolute inset-x-0 bottom-0 flex flex-col gap-1 p-4 sm:p-5 lg:p-6">
-          <span className="text-sm font-semibold text-white sm:text-base lg:text-lg">
+        {/* Editor tab bar */}
+        <div className="absolute inset-x-0 top-0 flex items-center gap-2 border-b border-[#262C38]/80 bg-[#0C0F14]/85 px-3 py-2 backdrop-blur-sm">
+          <span aria-hidden className="flex items-center gap-1.5">
+            <span className="h-2 w-2 rounded-full bg-[#FF5F57]" />
+            <span className="h-2 w-2 rounded-full bg-[#FEBC2E]" />
+            <span className="h-2 w-2 rounded-full bg-[#28C840]" />
+          </span>
+          <span className="truncate font-mono text-[10px] tracking-wide text-white/45 sm:text-[11px]">
+            {member.name.toLowerCase().replace(/\s+/g, "-")}.tsx
+          </span>
+          <span className="ml-auto font-mono text-[10px] tracking-widest text-noir-gold/70">
+            {String(index + 1).padStart(2, "0")}
+          </span>
+        </div>
+
+        <div className="absolute inset-x-0 bottom-0 flex flex-col gap-1 border-t border-[#262C38]/60 bg-[#0C0F14]/70 p-4 font-mono backdrop-blur-sm sm:p-5 lg:p-6">
+          <span className="flex items-baseline gap-2 text-sm font-semibold text-white sm:text-base lg:text-lg">
+            <span aria-hidden className="text-noir-gold/50">
+              const
+            </span>
             {member.name}
           </span>
-          <span className="text-xs text-noir-gold-bright sm:text-sm">
+          <span className="flex items-baseline gap-2 text-xs text-noir-gold-bright sm:text-sm">
+            <span aria-hidden className="text-white/35">
+              role:
+            </span>
             {member.role}
           </span>
         </div>
 
         <div
-          className={`absolute inset-0 rounded-2xl border transition-colors duration-300 ${
+          className={`absolute inset-0 rounded-xl border transition-colors duration-300 ${
             isHovered ? "border-noir-gold-bright/60" : "border-transparent"
           }`}
         />

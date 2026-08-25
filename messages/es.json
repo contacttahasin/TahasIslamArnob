@@ -124,7 +124,11 @@
     "allRightsReserved": "Todos los derechos reservados."
   },
   "projects": {
-    "emptyCategory": "Todavía no hay proyectos en esta categoría."
+    "emptyCategory": "Todavía no hay proyectos en esta categoría.",
+    "searchPlaceholder": "Buscar proyectos, tecnología…",
+    "noResults": "Nada coincide con esa búsqueda.",
+    "clearFilters": "Borrar filtros",
+    "resultCount": "{count} mostrados"
   },
   "projectsRing": {
     "viewLive": "Ver en Vivo",

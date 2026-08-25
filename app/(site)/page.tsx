@@ -5,8 +5,8 @@ import {
   ScrollVelocityRow,
 } from "@/app/components/homeComponents/ScrollVelocityContainer"
 import DroneScrollHero from '@/app/components/homeComponents/DroneScrollHero';
-import WorkTimeline from '@/app/components/homeComponents/WorkTimeline';
 import { Skiper30 } from '@/app/components/homeComponents/skiper30';
+import CodeStatusBar from '@/app/components/code/CodeStatusBar';
 import { Skiper19 } from '@/app/components/homeComponents/skiper19';
 import Footer from '@/app/components/homeComponents/footer/Footer';
 import LiveChat from '@/app/components/LiveChat/LiveChat';
@@ -28,8 +28,8 @@ function page() {
    TAHASIN ISLAM
   </ScrollVelocityRow>
 </ScrollVelocityContainer>
+<CodeStatusBar branch="main" file="tahasin/app/(site)/page.tsx" />
 <DroneScrollHero/>
-<WorkTimeline/>
 <Skiper30/>
 
 <Skiper19/>

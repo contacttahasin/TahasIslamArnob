@@ -9,8 +9,15 @@
  * present or its Insert/Update/Row inference silently collapses to `never`.
  */
 
+/**
+ * The `project_type` enum still carries the old "latest" value because rows
+ * created before the Latest Projects section was removed still hold it. The
+ * app no longer distinguishes the two — everything is written as
+ * "portfolio" and every project is listed together.
+ */
 export type ProjectType = "latest" | "portfolio";
 export type ProjectStatus = "published" | "draft";
+export type ReviewStatus = "pending" | "approved" | "rejected";
 
 export type Database = {
   public: {
@@ -51,6 +58,60 @@ export type Database = {
           updated_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["projects"]["Insert"]>;
+        Relationships: [];
+      };
+      reviews: {
+        Row: {
+          id: string;
+          name: string;
+          title: string;
+          company: string;
+          text: string;
+          picture: string | null;
+          author_id: string | null;
+          author_avatar: string | null;
+          link: string | null;
+          rating: number | null;
+          status: ReviewStatus;
+          featured: boolean;
+          display_order: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          title?: string;
+          company?: string;
+          text: string;
+          picture?: string | null;
+          author_id?: string | null;
+          author_avatar?: string | null;
+          link?: string | null;
+          rating?: number | null;
+          status?: ReviewStatus;
+          featured?: boolean;
+          display_order?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          title?: string;
+          company?: string;
+          text?: string;
+          picture?: string | null;
+          author_id?: string | null;
+          author_avatar?: string | null;
+          link?: string | null;
+          rating?: number | null;
+          status?: ReviewStatus;
+          featured?: boolean;
+          display_order?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
         Relationships: [];
       };
       technologies: {
@@ -117,6 +178,7 @@ export type Database = {
     Enums: {
       project_type: ProjectType;
       project_status: ProjectStatus;
+      review_status: ReviewStatus;
     };
     CompositeTypes: Record<string, never>;
   };
@@ -124,6 +186,7 @@ export type Database = {
 
 export type Project = Database["public"]["Tables"]["projects"]["Row"];
 export type Technology = Database["public"]["Tables"]["technologies"]["Row"];
+export type Review = Database["public"]["Tables"]["reviews"]["Row"];
 export type PortfolioSettings = Database["public"]["Tables"]["portfolio_settings"]["Row"];
 
 export type ProjectWithTechnologies = Project & { technologies: Technology[] };

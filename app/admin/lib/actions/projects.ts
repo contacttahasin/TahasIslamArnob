@@ -4,7 +4,6 @@ import { revalidatePath } from "next/cache";
 import { requireOwner } from "@/app/admin/lib/auth";
 import { projectSchema, type ProjectInput } from "@/app/admin/lib/schemas/project";
 import { slugify } from "@/lib/slug";
-import type { ProjectType } from "@/lib/supabase/types";
 
 export type ActionResult = { ok: true } | { ok: false; error: string };
 
@@ -29,9 +28,9 @@ export async function checkSlugAvailable(slug: string, excludeId?: string): Prom
   return !data || data.length === 0;
 }
 
-function revalidateProjectPaths(type: ProjectType) {
+function revalidateProjectPaths() {
   revalidatePath("/admin/dashboard");
-  revalidatePath(type === "latest" ? "/admin/latest-projects" : "/admin/portfolio-projects");
+  revalidatePath("/admin/portfolio-projects");
 }
 
 export async function createProject(input: ProjectInput): Promise<ActionResult> {
@@ -45,7 +44,7 @@ export async function createProject(input: ProjectInput): Promise<ActionResult> 
   const { data: project, error } = await supabase
     .from("projects")
     .insert({
-      type: data.type,
+      type: "portfolio",
       title: data.title,
       slug,
       description: data.description,
@@ -70,7 +69,7 @@ export async function createProject(input: ProjectInput): Promise<ActionResult> 
     if (linkError) return { ok: false, error: linkError.message };
   }
 
-  revalidateProjectPaths(data.type);
+  revalidateProjectPaths();
   return { ok: true };
 }
 
@@ -85,7 +84,7 @@ export async function updateProject(id: string, input: ProjectInput): Promise<Ac
   const { error } = await supabase
     .from("projects")
     .update({
-      type: data.type,
+      type: "portfolio",
       title: data.title,
       slug,
       description: data.description,
@@ -112,41 +111,37 @@ export async function updateProject(id: string, input: ProjectInput): Promise<Ac
     if (linkError) return { ok: false, error: linkError.message };
   }
 
-  revalidateProjectPaths(data.type);
-  revalidatePath(`/admin/${data.type === "latest" ? "latest-projects" : "portfolio-projects"}/${id}`);
+  revalidateProjectPaths();
+  revalidatePath(`/admin/portfolio-projects/${id}`);
   return { ok: true };
 }
 
-export async function deleteProject(id: string, type: ProjectType): Promise<ActionResult> {
+export async function deleteProject(id: string): Promise<ActionResult> {
   const { supabase } = await requireOwner();
   const { error } = await supabase.from("projects").delete().eq("id", id);
   if (error) return { ok: false, error: error.message };
-  revalidateProjectPaths(type);
+  revalidateProjectPaths();
   return { ok: true };
 }
 
-export async function toggleProjectFeatured(id: string, type: ProjectType, featured: boolean): Promise<ActionResult> {
+export async function toggleProjectFeatured(id: string, featured: boolean): Promise<ActionResult> {
   const { supabase } = await requireOwner();
   const { error } = await supabase.from("projects").update({ featured }).eq("id", id);
   if (error) return { ok: false, error: error.message };
-  revalidateProjectPaths(type);
+  revalidateProjectPaths();
   return { ok: true };
 }
 
-export async function setProjectStatus(
-  id: string,
-  type: ProjectType,
-  status: "published" | "draft"
-): Promise<ActionResult> {
+export async function setProjectStatus(id: string, status: "published" | "draft"): Promise<ActionResult> {
   const { supabase } = await requireOwner();
   const { error } = await supabase.from("projects").update({ status }).eq("id", id);
   if (error) return { ok: false, error: error.message };
-  revalidateProjectPaths(type);
+  revalidateProjectPaths();
   return { ok: true };
 }
 
-/** Persists a full drag-and-drop reorder for one project type in one round trip. */
-export async function reorderProjects(type: ProjectType, orderedIds: string[]): Promise<ActionResult> {
+/** Persists a full drag-and-drop reorder in one round trip. */
+export async function reorderProjects(orderedIds: string[]): Promise<ActionResult> {
   const { supabase } = await requireOwner();
   const updates = orderedIds.map((id, index) =>
     supabase.from("projects").update({ display_order: index }).eq("id", id)
@@ -154,6 +149,6 @@ export async function reorderProjects(type: ProjectType, orderedIds: string[]): 
   const results = await Promise.all(updates);
   const failed = results.find((r) => r.error);
   if (failed?.error) return { ok: false, error: failed.error.message };
-  revalidateProjectPaths(type);
+  revalidateProjectPaths();
   return { ok: true };
 }

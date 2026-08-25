@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { formatDistanceToNow } from "date-fns";
-import { LayoutGrid, Rocket, Briefcase, Star, Images, Clock, Plus, Tag, Settings, HardDrive } from "lucide-react";
+import { LayoutGrid, Globe, Star, Images, Clock, Plus, Tag, Settings, HardDrive } from "lucide-react";
 
 import { PageHeader } from "@/app/admin/components/PageHeader";
 import { StatCard } from "@/app/admin/components/StatCard";
@@ -37,10 +37,9 @@ export default async function DashboardPage() {
     <div>
       <PageHeader title="Dashboard" description="An overview of your portfolio content." />
 
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
         <StatCard label="Total Projects" value={counts.total} icon={LayoutGrid} accent />
-        <StatCard label="Latest Projects" value={counts.latest} icon={Rocket} />
-        <StatCard label="Portfolio Projects" value={counts.portfolio} icon={Briefcase} />
+        <StatCard label="Published" value={counts.published} icon={Globe} />
         <StatCard label="Featured Projects" value={counts.featured} icon={Star} />
         <StatCard label="Total Images" value={totalImages} icon={Images} />
         <StatCard
@@ -60,7 +59,7 @@ export default async function DashboardPage() {
               {recentProjects.map((project) => (
                 <Link
                   key={project.id}
-                  href={`/admin/${project.type === "latest" ? "latest-projects" : "portfolio-projects"}/${project.id}`}
+                  href={`/admin/portfolio-projects/${project.id}`}
                   className="flex items-center gap-3 rounded-xl px-2 py-2.5 transition-colors hover:bg-white/[0.03]"
                 >
                   <div className="relative size-10 shrink-0 overflow-hidden rounded-lg border border-white/10 bg-white/[0.03]">
@@ -87,11 +86,8 @@ export default async function DashboardPage() {
           <div className="rounded-2xl border border-white/[0.07] bg-white/[0.02] p-5">
             <h2 className="mb-4 text-sm font-semibold text-foreground">Quick Actions</h2>
             <div className="space-y-1.5">
-              <Link href="/admin/latest-projects/new" className="flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-sm text-muted-foreground transition-colors hover:bg-white/[0.03] hover:text-foreground">
-                <Plus className="size-4" /> New Latest Project
-              </Link>
               <Link href="/admin/portfolio-projects/new" className="flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-sm text-muted-foreground transition-colors hover:bg-white/[0.03] hover:text-foreground">
-                <Plus className="size-4" /> New Portfolio Project
+                <Plus className="size-4" /> New Project
               </Link>
               <Link href="/admin/technologies" className="flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-sm text-muted-foreground transition-colors hover:bg-white/[0.03] hover:text-foreground">
                 <Tag className="size-4" /> Manage Technologies

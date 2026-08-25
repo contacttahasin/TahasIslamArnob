@@ -11,6 +11,7 @@ import Experience from "@/app/components/about/Experience";
 import Skills from "@/app/components/about/Skills";
 import CommitActivity from "@/app/components/shared/CommitActivity";
 import TechShowcase from "@/app/components/about/TechShowcase";
+import DependencyList from "@/app/components/code/DependencyList";
 import Philosophy from "@/app/components/about/Philosophy";
 
 
@@ -37,6 +38,23 @@ export default function Page() {
       <Skills />
       <CommitActivity />
       <TechShowcase />
+
+      {/* The versions this site actually runs on — checkable, unlike a
+          wall of logos. Kept in step with package.json by hand. */}
+      <section className="w-full px-6 pt-16 pb-24 sm:px-10 sm:pt-24 lg:px-16">
+        <DependencyList
+          dependencies={[
+            { name: "next", version: "16.2.10" },
+            { name: "react", version: "19.2.4" },
+            { name: "typescript", version: "^5" },
+            { name: "tailwindcss", version: "^4" },
+            { name: "gsap", version: "^3.15.0" },
+            { name: "three", version: "^0.185.1" },
+            { name: "framer-motion", version: "^12.42.2" },
+            { name: "@supabase/supabase-js", version: "^2.111.0" },
+          ]}
+        />
+      </section>
       <Philosophy />
 
       <IllustratedSection

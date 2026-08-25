@@ -3,9 +3,10 @@ import LiveChat from "@/app/components/LiveChat/LiveChat";
 import ScrollTop from "@/app/components/scrollTop/ScrollTop";
 import { jakarta } from "@/app/components/shared/fonts";
 import SectionHeading from "@/app/components/shared/SectionHeading";
+import Reveal from "@/app/components/shared/Reveal";
 import ThreeBackground from "@/app/components/projects/ThreeBackground";
 import ProjectGrid from "@/app/components/projects/ProjectGrid";
-import ProjectsRing from "@/app/components/projectsRing/ProjectsRing";
+import ProjectsTerminal from "@/app/components/projects/ProjectsTerminal";
 import IllustratedSection from "@/app/components/shared/IllustratedSection";
 import Footer from "@/app/components/homeComponents/footer/Footer";
 import { getPublishedProjects } from "@/app/(site)/lib/projects";
@@ -17,16 +18,11 @@ export const metadata: Metadata = {
 };
 
 export default async function Page() {
-  const [latestProjects, allProjects] = await Promise.all([
-    getPublishedProjects("latest"),
-    getPublishedProjects(),
-  ]);
+  const projects = await getPublishedProjects();
 
   return (
     <div className={`${jakarta.variable} w-full overflow-x-hidden bg-noir-bg text-noir-ink`}>
-      <ProjectsRing projects={latestProjects} />
-
-      <section className="relative w-full overflow-hidden px-6 pb-16 pt-40 sm:px-10 sm:pt-52 lg:px-16 lg:pt-64">
+      <section className="relative w-full overflow-hidden px-6 pb-16 pt-28 sm:px-10 sm:pt-32 lg:px-16 lg:pt-36">
         <ThreeBackground />
 
         <div className="pointer-events-none absolute -top-32 left-1/2 h-[480px] w-[480px] -translate-x-1/2 rounded-full bg-noir-gold/10 blur-[160px]" />
@@ -45,14 +41,22 @@ export default async function Page() {
           className="relative"
         />
 
-        <p className="relative mx-auto -mt-8 max-w-xl text-center text-sm text-noir-ink-soft sm:text-base">
-          A collection of products, tools and interfaces — filter by category
-          to explore.
-        </p>
+        <Reveal
+          as="p"
+          delay={0.2}
+          className="relative mx-auto -mt-8 max-w-xl text-center text-sm text-noir-ink-soft sm:text-base"
+        >
+          A collection of products, tools and interfaces I&apos;ve designed and
+          shipped.
+        </Reveal>
+
+        <div className="relative mt-10 sm:mt-14">
+          <ProjectsTerminal projects={projects} />
+        </div>
       </section>
 
       <section className="w-full px-6 pb-28 sm:px-10 lg:px-16">
-        <ProjectGrid projects={allProjects} />
+        <ProjectGrid projects={projects} />
       </section>
 
       <IllustratedSection

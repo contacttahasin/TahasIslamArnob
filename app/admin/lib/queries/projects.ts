@@ -1,6 +1,6 @@
 import "server-only";
 import { requireOwner } from "@/app/admin/lib/auth";
-import type { ProjectType, ProjectWithTechnologies } from "@/lib/supabase/types";
+import type { ProjectWithTechnologies } from "@/lib/supabase/types";
 
 const PROJECT_WITH_TECH_SELECT = "*, project_technologies(technologies(*))";
 
@@ -14,12 +14,11 @@ function flattenTechnologies(row: RawProjectRow): ProjectWithTechnologies {
   return { ...project, technologies: project_technologies.map((pt) => pt.technologies) };
 }
 
-export async function listProjects(type: ProjectType): Promise<ProjectWithTechnologies[]> {
+export async function listProjects(): Promise<ProjectWithTechnologies[]> {
   const { supabase } = await requireOwner();
   const { data, error } = await supabase
     .from("projects")
     .select(PROJECT_WITH_TECH_SELECT)
-    .eq("type", type)
     .order("display_order", { ascending: true });
 
   if (error || !data) return [];
@@ -35,15 +34,14 @@ export async function getProject(id: string): Promise<ProjectWithTechnologies | 
 
 export async function getProjectCounts() {
   const { supabase } = await requireOwner();
-  const [latest, portfolio, featured] = await Promise.all([
-    supabase.from("projects").select("id", { count: "exact", head: true }).eq("type", "latest"),
-    supabase.from("projects").select("id", { count: "exact", head: true }).eq("type", "portfolio"),
+  const [total, published, featured] = await Promise.all([
+    supabase.from("projects").select("id", { count: "exact", head: true }),
+    supabase.from("projects").select("id", { count: "exact", head: true }).eq("status", "published"),
     supabase.from("projects").select("id", { count: "exact", head: true }).eq("featured", true),
   ]);
   return {
-    latest: latest.count ?? 0,
-    portfolio: portfolio.count ?? 0,
-    total: (latest.count ?? 0) + (portfolio.count ?? 0),
+    total: total.count ?? 0,
+    published: published.count ?? 0,
     featured: featured.count ?? 0,
   };
 }

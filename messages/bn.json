@@ -124,7 +124,11 @@
     "allRightsReserved": "সর্বস্বত্ব সংরক্ষিত।"
   },
   "projects": {
-    "emptyCategory": "এই ক্যাটাগরিতে এখনো কোনো প্রজেক্ট নেই।"
+    "emptyCategory": "এই ক্যাটাগরিতে এখনো কোনো প্রজেক্ট নেই।",
+    "searchPlaceholder": "প্রজেক্ট, প্রযুক্তি খুঁজুন…",
+    "noResults": "এই খোঁজে কিছু মেলেনি।",
+    "clearFilters": "ফিল্টার মুছুন",
+    "resultCount": "{count}টি দেখানো হচ্ছে"
   },
   "projectsRing": {
     "viewLive": "লাইভ দেখুন",

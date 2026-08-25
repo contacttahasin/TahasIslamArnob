@@ -14,19 +14,28 @@ import { Quote } from "lucide-react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ScrollVelocityRow } from "../homeComponents/ScrollVelocityContainer";
-import { reviews } from "@/data/reviews";
+import { reviews as fallbackReviews } from "@/data/reviews";
+import ReviewSubmitDialog from "./ReviewSubmitDialog";
 
 gsap.registerPlugin(ScrollTrigger);
-
-const rowOne = reviews.slice(0, 4);
-const rowTwo = reviews.slice(4);
 
 // Soft fade at the left/right edges so cards ease in/out of the marquee
 // instead of cutting off hard.
 const EDGE_MASK =
   "linear-gradient(to right, transparent, black 8%, black 92%, transparent)";
 
-export default function Review() {
+/**
+ * `items` comes from the database (approved reviews only — see
+ * app/(site)/lib/reviews.ts). The static set in data/reviews.ts is the
+ * fallback for when the table is empty or the migration has not been run,
+ * so the marquee is never blank.
+ */
+export default function Review({ items }) {
+  const list = items && items.length > 0 ? items : fallbackReviews;
+  const half = Math.ceil(list.length / 2);
+  const rowOne = list.slice(0, half);
+  const rowTwo = list.slice(half);
+
   const sectionRef = useRef(null);
   const headingRef = useRef(null);
   const rowOneRef = useRef(null);
@@ -103,6 +112,8 @@ export default function Review() {
           <MarqueeRow items={rowTwo} baseVelocity={2.4} direction={-1} />
         </div>
       </div>
+
+      <ReviewSubmitDialog />
     </section>
   );
 }
@@ -130,9 +141,9 @@ function MarqueeRow({ items, baseVelocity, direction }) {
       className="w-full overflow-hidden"
     >
       <ScrollVelocityRow baseVelocity={baseVelocity} direction={direction} className="py-2">
-        <div className="flex">
+        <div className="flex items-stretch">
           {items.map((t) => (
-            <ReviewCard key={t.name} testimonial={t} />
+            <ReviewCard key={t.id ?? t.name} testimonial={t} />
           ))}
         </div>
       </ScrollVelocityRow>
@@ -142,6 +153,10 @@ function MarqueeRow({ items, baseVelocity, direction }) {
 
 function ReviewCard({ testimonial }) {
   const localRef = useRef(null);
+  // Already resolved server-side (app/(site)/lib/reviews.ts): the owner's
+  // own upload if there is one, otherwise the picture from the reviewer's
+  // Google account. Neither means initials, drawn below.
+  const picture = testimonial.picture;
 
   const rotateX = useMotionValue(0);
   const rotateY = useMotionValue(0);
@@ -173,7 +188,7 @@ function ReviewCard({ testimonial }) {
       ref={localRef}
       onMouseMove={handleMove}
       onMouseLeave={handleLeave}
-      className="perspective-distant mr-4 w-64 shrink-0 sm:mr-5 sm:w-72"
+      className="perspective-distant mr-4 flex w-64 shrink-0 sm:mr-5 sm:w-72"
     >
       <CardTag
         {...linkProps}
@@ -184,16 +199,16 @@ function ReviewCard({ testimonial }) {
         }}
         whileHover={{ scale: 1.02, y: -4 }}
         transition={{ type: "spring", stiffness: 300, damping: 24 }}
-        className="group relative flex min-h-48 flex-col justify-between overflow-hidden whitespace-normal rounded-2xl border border-line bg-bg-elevated/80 p-5 shadow-[0_20px_45px_-25px_rgba(0,0,0,0.75)] transform-gpu will-change-transform"
+        className="group relative flex h-full min-h-48 w-full flex-col justify-between overflow-hidden whitespace-normal rounded-2xl border border-line bg-bg-elevated/80 p-5 shadow-[0_20px_45px_-25px_rgba(0,0,0,0.75)] transform-gpu will-change-transform"
       >
         <span className="absolute left-6 top-0 h-[3px] w-8 rounded-full bg-linear-to-r from-noir-gold to-noir-gold-bright" />
 
         <div>
           <div className="flex items-center gap-3">
             <div className="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full border border-line bg-white/5 text-sm font-semibold text-noir-gold-bright">
-              {testimonial.picture ? (
+              {picture ? (
                 <Image
-                  src={testimonial.picture}
+                  src={picture}
                   alt={testimonial.name}
                   fill
                   sizes="40px"

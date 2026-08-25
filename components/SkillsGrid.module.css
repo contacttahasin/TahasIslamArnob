@@ -1,0 +1,74 @@
+/* Hairline stat grid. Borders come from the site's own --line token (the
+   same hairline the hero's foot rule and the skill cards use) rather than a
+   new colour; --border-color is kept as a fallback only so the module still
+   renders correctly if it is ever mounted outside the themed tree. */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  border-top: 1px solid var(--line, var(--border-color, rgba(255, 255, 255, 0.12)));
+  border-left: 1px solid var(--line, var(--border-color, rgba(255, 255, 255, 0.12)));
+  margin: 0;
+}
+
+/* Every cell owns its right + bottom edge and the container owns the top +
+   left, so the lines stay single-width and continuous at any column count —
+   no doubling where cells meet, nothing missing on the last row. */
+.cell {
+  border-right: 1px solid var(--line, var(--border-color, rgba(255, 255, 255, 0.12)));
+  border-bottom: 1px solid var(--line, var(--border-color, rgba(255, 255, 255, 0.12)));
+  padding: 20px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+/* font1 is the site's display face — the same one the hero's name and its
+   "3+ / Years of experience" stat numbers use. */
+.number {
+  font-family: font1, sans-serif;
+  font-size: clamp(20px, 2.2vw, 28px);
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink, #ffffff);
+  margin: 0;
+}
+
+/* font3 is the site's label face — the hero stat labels and the "01 / NOW"
+   foot index are set in it. Colour is --ink-secondary rather than white at
+   0.65 opacity so this row reads at exactly the same weight as those. */
+.label {
+  font-family: font3, sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  line-height: 1.3;
+  color: var(--ink-secondary, #b8c0cc);
+  margin: 0;
+  overflow-wrap: break-word;
+}
+
+/* Tablet: 4 columns x N rows — the grid lines keep working with no extra
+   rules because each cell still owns its own right/bottom border. */
+@media (max-width: 1023px) {
+  .grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Mobile: 2 columns x N rows */
+@media (max-width: 599px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .cell {
+    padding: 16px 12px;
+  }
+
+  .number {
+    font-size: 22px;
+  }
+}

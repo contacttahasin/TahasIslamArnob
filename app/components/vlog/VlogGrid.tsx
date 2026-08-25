@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { vlogPosts, vlogCategories, type VlogCategory } from "@/data/vlog";
 import VlogCard from "./VlogCard";
+import Reveal from "../shared/Reveal";
 
 export default function VlogGrid() {
   const t = useTranslations();
@@ -16,7 +17,7 @@ export default function VlogGrid() {
 
   return (
     <div className="mx-auto w-full max-w-6xl">
-      <div className="mb-14 flex flex-wrap justify-center gap-3">
+      <Reveal stagger={0.05} y={16} duration={0.55} className="mb-14 flex flex-wrap justify-center gap-3">
         <button
           type="button"
           onClick={() => setActive("all")}
@@ -43,13 +44,19 @@ export default function VlogGrid() {
             {category.label}
           </button>
         ))}
-      </div>
+      </Reveal>
 
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      {/* Keyed by the active filter so the cards re-run their entrance when
+          the list changes, instead of the new set popping in un-animated. */}
+      <Reveal
+        key={active}
+        stagger={0.08}
+        className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"
+      >
         {filtered.map((post) => (
           <VlogCard key={post.slug} post={post} />
         ))}
-      </div>
+      </Reveal>
 
       {filtered.length === 0 && (
         <p className="py-20 text-center text-sm text-noir-ink-faint">{t("vlog.emptyCategory")}</p>

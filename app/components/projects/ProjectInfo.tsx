@@ -1,11 +1,6 @@
 import { ArrowUpRight } from "lucide-react";
 import type { PublicProject } from "./types";
 
-const TYPE_LABEL: Record<PublicProject["type"], string> = {
-  latest: "Latest Project",
-  portfolio: "Portfolio Project",
-};
-
 export default function ProjectInfo({ project }: { project: PublicProject }) {
   return (
     <div className="pt-4">
@@ -18,8 +13,6 @@ export default function ProjectInfo({ project }: { project: PublicProject }) {
           className="mt-1 shrink-0 text-noir-ink-faint transition-all duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-noir-gold-bright"
         />
       </div>
-
-      <p className="mt-1 text-sm text-noir-ink-soft">{TYPE_LABEL[project.type]}</p>
 
       <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs uppercase tracking-wide text-noir-ink-faint">
         <span>{project.year}</span>
