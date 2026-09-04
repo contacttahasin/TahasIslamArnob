@@ -21,8 +21,8 @@ export type ContactData = {
   socials: SocialLink[];
 };
 
-const WHATSAPP_NUMBER = "+880 1410-688426";
-const WHATSAPP_LINK = "https://wa.me/8801410688426";
+const WHATSAPP_NUMBER = "+880 1568-842688";
+const WHATSAPP_LINK = "https://wa.me/8801568842688";
 
 export const contact: ContactData = {
   subheading: "Contact",

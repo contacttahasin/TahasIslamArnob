@@ -196,7 +196,7 @@ export const about: AboutData = {
   socials: [
     { label: "Facebook", href: "https://www.facebook.com/tahasin.islam.arnob0", icon: "facebook" },
     { label: "Instagram", href: "https://www.instagram.com/tahasin.islam.arnob0/", icon: "instagram" },
-    { label: "WhatsApp", href: "https://wa.me/8801410688426", icon: "whatsapp" },
+    { label: "WhatsApp", href: "https://wa.me/8801568842688", icon: "whatsapp" },
     { label: "GitHub", href: null, icon: "github" },
     { label: "LinkedIn", href: null, icon: "linkedin" },
     { label: "X (Twitter)", href: null, icon: "twitter" },
