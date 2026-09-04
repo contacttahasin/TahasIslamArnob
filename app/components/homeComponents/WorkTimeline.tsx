@@ -6,6 +6,7 @@ import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useReducedMotion } from "../shared/hooks/useReducedMotion";
+import { PIN_QUERY } from "./StickyCards";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
@@ -35,6 +36,14 @@ type WorkTimelineProps = {
    * Fits the section into one viewport, for use as a panel in the pinned
    * card stack (StickyCards) where the panel is exactly viewport-tall and
    * clips anything past it. Tightens spacing and type; no copy is dropped.
+   *
+   * It only takes effect inside StickyCards' PIN_QUERY, because that is the
+   * only place the stack pins. Outside it StickyCards lays its panels out as
+   * ordinary stacked sections at their natural height, so squeezing this one
+   * into a viewport there would shrink the art and the type for no reason --
+   * and on a phone the squeezed layout still overflowed and was clipped. So
+   * `compact` only adds the `wt-compact` marker class here; the overrides
+   * live in the one media block at the bottom, keyed off the same query.
    */
   compact?: boolean;
 };
@@ -92,9 +101,7 @@ export default function WorkTimeline({ compact = false }: WorkTimelineProps) {
     <section
       ref={rootRef}
       className={`relative w-full overflow-hidden bg-bg-primary px-[6%] text-ink md:px-[8%] lg:px-10 ${
-        compact
-          ? "wt-compact flex h-full items-center pb-3 pt-[68px] sm:py-8 lg:py-10"
-          : "py-20 sm:py-24 lg:py-32"
+        compact ? "wt-compact py-20 sm:py-24 lg:py-32" : "py-20 sm:py-24 lg:py-32"
       }`}
     >
       <div className="mx-auto w-full max-w-7xl">
@@ -108,13 +115,7 @@ export default function WorkTimeline({ compact = false }: WorkTimelineProps) {
         {/* Headline + intro on the left, sketch on the right; stacked on
             phone with the sketch between the intro and the highlights,
             exactly as the reference lays it out. */}
-        <div
-          className={`grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] ${
-            compact
-              ? "mt-3 gap-3 lg:mt-7 lg:items-center lg:gap-10"
-              : "mt-10 gap-10 lg:mt-14 lg:items-start lg:gap-14"
-          }`}
-        >
+        <div className="wt-grid mt-10 grid grid-cols-1 gap-10 lg:mt-14 lg:grid-cols-[1.1fr_0.9fr] lg:items-start lg:gap-14">
 
           <div className="order-1">
             <h2 className="wt-headline font-[font1] font-bold tracking-tight text-ink">
@@ -125,11 +126,7 @@ export default function WorkTimeline({ compact = false }: WorkTimelineProps) {
               ))}
             </h2>
 
-            <p
-              className={`wt-intro max-w-2xl leading-relaxed text-ink-secondary ${
-                compact ? "mt-3 lg:mt-5" : "mt-8 lg:mt-10"
-              }`}
-            >
+            <p className="wt-intro mt-8 max-w-2xl leading-relaxed text-ink-secondary lg:mt-10">
               {INTRO}
             </p>
           </div>
@@ -141,20 +138,16 @@ export default function WorkTimeline({ compact = false }: WorkTimelineProps) {
               width={1080}
               height={1080}
               sizes="(min-width: 1024px) 44vw, 80vw"
-              className={`wt-art h-auto object-contain ${
-                compact
-                  ? "w-[34%] max-w-[220px] sm:w-[34%] lg:w-full lg:max-w-[400px]"
-                  : "w-[80%] max-w-[560px] sm:w-[62%] lg:w-full"
-              }`}
+              className="wt-art h-auto w-[80%] max-w-[560px] object-contain sm:w-[62%] lg:w-full"
             />
           </div>
         </div>
 
         {/* Highlights */}
-        <div className={compact ? "mt-4 lg:mt-8" : "mt-14 lg:mt-20"}>
+        <div className="wt-highlights mt-14 lg:mt-20">
           <div className="wt-rule h-px w-full bg-line" />
 
-          <ul className={compact ? "mt-3 space-y-2 lg:space-y-3" : "mt-10 space-y-6 lg:space-y-5"}>
+          <ul className="wt-list mt-10 space-y-6 lg:space-y-5">
             {HIGHLIGHTS.map((item) => (
               <li key={item} className="flex items-start gap-4 lg:gap-6">
                 <span
@@ -205,19 +198,55 @@ export default function WorkTimeline({ compact = false }: WorkTimelineProps) {
           font-size: clamp(0.8rem, 1.2vw, 0.95rem);
         }
 
-        /* Panel mode: same copy, one viewport tall. */
-        .wt-compact .wt-headline {
-          font-size: clamp(1.35rem, 4.4vw, 3.1rem);
-        }
-        .wt-compact .wt-intro {
-          font-size: clamp(0.8rem, 1.15vw, 0.95rem);
-        }
-        .wt-compact .wt-item-text {
-          font-size: clamp(0.75rem, 1vw, 0.9rem);
-          line-height: 1.5;
-        }
-        .wt-compact .wt-eyebrow {
-          font-size: clamp(0.55rem, 0.95vw, 0.65rem);
+        /* Panel mode: same copy, one viewport tall. Everything above is the
+           full-size section; this block is the only thing the compact prop
+           changes, and it is keyed off StickyCards' own query so it can
+           never apply on a viewport where the panel scrolls at its natural
+           height instead of being pinned and clipped to one screen. */
+        @media ${PIN_QUERY} {
+          .wt-compact {
+            display: flex;
+            height: 100%;
+            align-items: center;
+            padding-top: 2.5rem;
+            padding-bottom: 2.5rem;
+          }
+          .wt-compact .wt-grid {
+            margin-top: 1.75rem;
+            align-items: center;
+            gap: 2.5rem;
+          }
+          .wt-compact .wt-intro {
+            margin-top: 1.25rem;
+          }
+          .wt-compact :global(.wt-art) {
+            max-width: 400px;
+          }
+          .wt-compact .wt-highlights {
+            margin-top: 2rem;
+          }
+          .wt-compact .wt-list {
+            margin-top: 0.75rem;
+          }
+          /* Tailwind's space-y-6 is an adjacent-sibling margin, so undoing
+             it takes the same shape, not a plain margin on the list. */
+          .wt-compact .wt-list > * + * {
+            margin-top: 0.75rem;
+          }
+
+          .wt-compact .wt-headline {
+            font-size: clamp(1.35rem, 4.4vw, 3.1rem);
+          }
+          .wt-compact .wt-intro {
+            font-size: clamp(0.8rem, 1.15vw, 0.95rem);
+          }
+          .wt-compact .wt-item-text {
+            font-size: clamp(0.75rem, 1vw, 0.9rem);
+            line-height: 1.5;
+          }
+          .wt-compact .wt-eyebrow {
+            font-size: clamp(0.55rem, 0.95vw, 0.65rem);
+          }
         }
       `}</style>
     </section>

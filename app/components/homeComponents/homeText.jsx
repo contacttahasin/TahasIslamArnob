@@ -22,7 +22,7 @@ gsap.registerPlugin(useGSAP, ScrollTrigger, MotionPathPlugin);
  *  takes a numeric px size rather than a CSS value. */
 const ACCENT_LINE_FONT_SIZE_RULES = [
   { minWidth: 0, vw: 10.5 },
-  { minWidth: 768, vw: 8 },
+  { minWidth: 768, vw: 6.5 },
   { minWidth: 1024, vw: 5.5 },
 ];
 
@@ -235,7 +235,7 @@ function HomeText() {
           the type column keeps its natural height and the portrait column
           takes whatever is left, so nothing ever overflows. From lg up this
           reverts to a normal, freely-growing section. */}
-      <div className="relative mx-auto flex h-svh w-full max-w-7xl flex-col overflow-hidden px-[6%] pt-24 pb-5 md:px-[8%] lg:h-auto lg:min-h-screen lg:justify-center lg:overflow-visible lg:px-10 lg:pt-36 lg:pb-10">
+      <div className="relative mx-auto flex h-svh w-full max-w-7xl flex-col overflow-hidden px-[6%] pt-24 pb-5 md:px-[8%] md:pt-16 lg:h-auto lg:min-h-screen lg:justify-center lg:overflow-visible lg:px-10 lg:pt-36 lg:pb-10">
 
         {/* Flex column on phone so the portrait column's `flex-1` actually
             resolves — a grid item would ignore it. Grid only from lg up,
@@ -250,7 +250,7 @@ function HomeText() {
               <span>{about.availability.message}</span>
             </p>
 
-            <div className="relative mt-4 lg:mt-8">
+            <div className="relative mt-4 md:mt-3 lg:mt-8">
             {/* Crawler — the gsap.com hero's signature move. A small accent
                 blob rides a squiggle path threaded through the name, the
                 way their worm walks over "anyth!ng". Sits above the type
@@ -280,7 +280,7 @@ function HomeText() {
               }}
             />
 
-            <h1 className="relative font-[font1] text-[10.5vw] font-bold leading-[0.95] tracking-tight text-ink md:text-[8vw] lg:text-[5.5vw]">
+            <h1 className="relative font-[font1] text-[10.5vw] font-bold leading-[0.95] tracking-tight text-ink md:text-[6.5vw] lg:text-[5.5vw]">
               {NAME_LINES.map((line, i) => {
                 const isAccent = i === NAME_LINES.length - 1;
                 return (
@@ -305,12 +305,12 @@ function HomeText() {
             </h1>
             </div>
 
-            <p className="chnageo mt-3 font-[font3] text-[3.2vw] uppercase tracking-[2px] text-noir-gold-bright md:text-[1.5vw] lg:mt-5 lg:text-[1.05vw]">
+            <p className="chnageo mt-3 md:mt-2 font-[font3] text-[3.2vw] uppercase tracking-[2px] text-noir-gold-bright md:text-[1.2vw] lg:mt-5 lg:text-[1.05vw]">
               {text}
               <span className="animate-pulse">|</span>
             </p>
 
-            <p className="desc mt-3 max-w-md text-[3.2vw] leading-snug text-ink-secondary md:text-[1.4vw] lg:mt-6 lg:text-lg lg:leading-relaxed">
+            <p className="desc mt-3 md:mt-2 max-w-md text-[3.2vw] leading-snug text-ink-secondary md:text-[1.15vw] lg:mt-6 lg:text-lg lg:leading-relaxed">
               {showDescEffect ? (
                 <FoldText
                   text={about.bio}
@@ -332,7 +332,7 @@ function HomeText() {
               )}
             </p>
 
-            <div className="cta mt-5 flex flex-wrap items-center gap-2.5 lg:mt-9 lg:gap-3">
+            <div className="cta mt-5 md:mt-3 flex flex-wrap items-center gap-2.5 lg:mt-9 lg:gap-3">
               <SpecularButton
                 href="/contact"
                 ariaLabel="Hire Me"
@@ -357,7 +357,7 @@ function HomeText() {
               </Link>
             </div>
 
-            <div className="social mt-4 flex items-center gap-2.5 lg:mt-8 lg:gap-3">
+            <div className="social mt-4 md:mt-3 flex items-center gap-2.5 lg:mt-8 lg:gap-3">
               {about.socials.map(({ label, href, icon }) => {
                 const iconDef = SOCIAL_ICONS[icon];
                 if (!href || !iconDef) return null;
@@ -395,10 +395,10 @@ function HomeText() {
               />
             </div>
 
-            <div className="mt-4 grid w-full shrink-0 grid-cols-3 gap-3 lg:mt-12 lg:gap-6">
+            <div className="mt-4 md:mt-3 grid w-full shrink-0 grid-cols-3 gap-3 lg:mt-12 lg:gap-6">
               {HERO_STATS.map((stat, i) => (
                 <div key={stat.label} className="stat">
-                  <p className="font-[font1] text-[5.5vw] font-bold leading-none text-ink md:text-[3.6vw] lg:text-[2.5vw]">
+                  <p className="font-[font1] text-[5.5vw] font-bold leading-none text-ink md:text-[2.8vw] lg:text-[2.5vw]">
                     <span
                       ref={(el) => {
                         statRefs.current[i] = el;

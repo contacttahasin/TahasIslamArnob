@@ -40,3 +40,10 @@ Thumbs.db
 
 # vercel
 .vercel
+
+# AI assistant config — local only, never published
+CLAUDE.md
+AGENTS.md
+.claude/
+.cursor/
+.mcp.json
